@@ -10,6 +10,7 @@ const Home = () => {
 	const getTodosURL = "https://playground.4geeks.com/todo/users/jribon51"
 	const postTodosURL = "https://playground.4geeks.com/todo/todos/jribon51"
 	const eliminarURL = "https://playground.4geeks.com/todo/todos/"
+	const modificarURL = "https://playground.4geeks.com/todo/todos/"
 
 	const [tareas, setTareas] = useState([]);
 	const [inputValue, setInputValue] = useState('');
@@ -50,6 +51,32 @@ const Home = () => {
 			.catch(error => error)
 	};
 
+	const actualizarTarea = (idTodo) => {
+		
+		const tareaModificada = tareas.find((tarea) => tarea.id === idTodo)
+
+		if(tareaModificada){
+			const tareaActualizada = {
+				...tareaModificada,
+				is_done: !tareaModificada.is_done
+			}
+
+			
+			fetch(modificarURL + idTodo,
+				{
+					method: "PUT",
+					body: JSON.stringify(tareaActualizada),
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				}
+			)
+				.then(response => response.json())
+				.then(data => getTodos())
+				.catch(error => error)
+		}
+
+	};
 
 
 
@@ -112,17 +139,20 @@ const Home = () => {
 			<div>
 				<ul className="list-group">
 
-					{tareas.map((tarea) => (
+					{tareas && tareas.map((tarea) => (
 						<li key={tarea.id} className="text-primary fs-3 px-5 list-group-item d-flex justify-content-between align-items-center">
 							{tarea.label}
-							<button onClick={() => handleDeleteTodo(tarea.id)} className="btn btn-danger boton">
-								<i class="fas fa-trash-alt"></i>
-							</button>
+							<div class="form-check">
+								<input onChange={() => actualizarTarea(tarea.id)} className="form-check-input boton" type="checkbox" checked={tarea.is_done} id="defaultCheck1"></input>
+								<button onClick={() => handleDeleteTodo(tarea.id)} className="btn btn-danger boton">
+									<i className="fas fa-trash-alt"></i>
+								</button>
+							</div>
 						</li>
 					))}
 				</ul>
 			</div>
-			<h1>Cantidad de tareas: {tareas.length}</h1>
+			<h1>Cantidad de tareas: {tareas && tareas.length}</h1>
 		</div>
 	);
 };
